@@ -6,4 +6,5 @@ python3 scrape.py -h or --h to see usuage
 
 
 
-![image](https://user-images.githubusercontent.com/71139938/116205338-45cf2d00-a75b-11eb-9bd2-c9bdfe944b45.png)
+![image](https://user-images.githubusercontent.com/71139938/116361495-abd0b880-a81e-11eb-9fd7-589f61297ad5.png)
+
