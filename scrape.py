@@ -6,8 +6,10 @@ import socket
 import urllib.error
 import time
 import threading
+from multiprocessing.dummy import Pool as ThreadPool
 import os
 working=0
+checked=0
 proxy_type=""		
 def get_proxies(link):
 	resp=requests.get(link)
@@ -15,12 +17,15 @@ def get_proxies(link):
 	return data
 
 def thread_test(proxy):
+	global working
+	global checked
+	checked+=1			
 	with open("working_proxies.txt",'a')as file:
 		if is_good_proxy(proxy):
 			global working;
 			working+=1
 			file.write('{0}\n'.format(proxy))
-				
+			print('Checked : [%d] Working : [%d]\r'%(checked,working), end="")	
 			
 
 def scrape(typ,link,test=False):
@@ -38,15 +43,14 @@ def scrape(typ,link,test=False):
 			if test:
 				checked=0
 				print("Checking Proxies")
-				for i in data:
-					t1 = threading.Thread(target=thread_test, args=(i,))
-					t1.start()
-					checked+=1
-					#t1.join()
-					global working
-					print('Checked : [%d] Working : [%d]\r'%(checked,working), end="")
-					#print('Working : [%d%%]\r'%working, end="")
-				print("Total no of working proxies : ",working)
+				
+				pool=ThreadPool(20)
+				results = pool.map(thread_test, data)
+				pool.close()
+				pool.join()
+			
+				
+			print("Total no of working proxies : ",working)
 	print("COMPLETED!!!!! @r4ge")
 
 def banner():
@@ -77,7 +81,7 @@ def main():
 										socks4 ,
 										socks5				
 	''')
-	parser.add_argument("-c",help="Check the proxies and store working proxies only!note http only for now")
+	parser.add_argument("-c",help="pass true or false to check")
 	args = parser.parse_args()
 	proxy_type="";
 	api_link={1:'https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all'}
